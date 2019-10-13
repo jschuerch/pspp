@@ -7,7 +7,7 @@
 		.then(response => response.arrayBuffer())
 		.then(bytes => WebAssembly.instantiate(bytes, {imports: {}}))
 		.then(results => {
-		  document.getElementById("demo").innerHTML = results.instance.exports.main(2);
+		  document.getElementById("demo").innerHTML = results.instance.exports.main(5);
 	  });
   </script>
   <h1>Test WASM<h1>
