@@ -1,2 +1,3 @@
 P01_FORTRAN/gfortran-windows-20130301.exe
-P04_Compiler_P3/out
+*/out
+*.class
