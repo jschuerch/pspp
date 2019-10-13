@@ -80,43 +80,15 @@ public class Program implements Emitter {
         JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
 
         if (Scanner.la == Token.LESSTHAN) {
-            Scanner.check(Token.LESSTHAN);
-            Calculator.expr();
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
-            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
-            if (isNot)
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ge_s, ValueType.i32, 0));
-            else
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.lt_s, ValueType.i32, 0));
+            conditionChecks(isNot, Token.LESSTHAN, NumericOperator.ge_s, NumericOperator.lt_s);
         } else if (Scanner.la == Token.GREATERTHAN) {
-            Scanner.check(Token.GREATERTHAN);
-            Calculator.expr();
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
-            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
-            if (isNot)
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.le_s, ValueType.i32, 0));
-            else
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.gt, ValueType.i32, 0));
+            conditionChecks(isNot, Token.GREATERTHAN, NumericOperator.le_s, NumericOperator.gt);
         } else if (Scanner.la == Token.EQUAL) {
             Scanner.check(Token.EQUAL);
-            Scanner.check(Token.EQUAL);
-            Calculator.expr();
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
-            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
-            if (isNot)
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
-            else
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eq, ValueType.i32, 0));
+            conditionChecks(isNot, Token.EQUAL, NumericOperator.ne, NumericOperator.eq);
         } else if (Scanner.la == Token.NOT) {
             Scanner.check(Token.NOT);
-            Scanner.check(Token.EQUAL);
-            Calculator.expr();
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
-            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
-            if (isNot)
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eq, ValueType.i32, 0));
-            else
-                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
+            conditionChecks(isNot, Token.EQUAL, NumericOperator.eq, NumericOperator.ne);
         } else {
             if (isNot) {
                 JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eqz, ValueType.i32, 0));
@@ -128,6 +100,17 @@ public class Program implements Emitter {
         }
 
         Scanner.check(Token.RBRACK);
+    }
+
+    private static void conditionChecks(boolean isNot, int nextTokenToCheck, NumericOperator isNotComparisonOperator, NumericOperator comparisonOperator) throws Exception {
+        Scanner.check(nextTokenToCheck);
+        Calculator.expr();
+        JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
+        JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
+        if (isNot)
+            JWebAssembly.il.add(new WasmNumericInstruction(isNotComparisonOperator, ValueType.i32, 0));
+        else
+            JWebAssembly.il.add(new WasmNumericInstruction(comparisonOperator, ValueType.i32, 0));
     }
 
     static void block() throws Exception {
@@ -205,7 +188,7 @@ public class Program implements Emitter {
                 "} else { " +
                 "return 321;" +
                 "}";
-        Scanner.init(test9);
+        Scanner.init(test5);
         Scanner.scan();
         JWebAssembly.emitCode(IProgram.class, new Program());
     }
