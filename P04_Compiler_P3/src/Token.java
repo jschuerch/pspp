@@ -19,9 +19,11 @@ public class Token {
 	public static final int ELSE = 16;
 	public static final int RETURN = 17;
 	public static final int EOF = 18;
+	public static final int LESSTHAN = 19;
+	public static final int GREATERTHAN = 20;
 	public static String[] names = {
 		"none", "number", "+", "-", "*", "/", "(", ")", "=", "ident", "!",
-		"while", "if", "{", "}", ";", "else", "return", "eof"};
+		"while", "if", "{", "}", ";", "else", "return", "eof", "<", ">"};
 
 	public int kind; // token code
 	public int pos; // position

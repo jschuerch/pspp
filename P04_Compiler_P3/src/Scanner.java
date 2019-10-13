@@ -241,6 +241,16 @@ public class Scanner {
 			nextCh();
 			break;
 
+		case '<':
+			t.kind = Token.LESSTHAN;
+			nextCh();
+			break;
+
+		case '>':
+			t.kind = Token.GREATERTHAN;
+			nextCh();
+			break;
+
 		case EOF:
 			t.kind = Token.EOF;
 			break;
