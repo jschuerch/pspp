@@ -79,12 +79,52 @@ public class Program implements Emitter {
         JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
         JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
 
-        if (isNot) {
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eqz, ValueType.i32,0));
-        } else {
-            JWebAssembly.il.add(new WasmConstInstruction(0.0, 0));
+        if (Scanner.la == Token.LESSTHAN) {
+            Scanner.check(Token.LESSTHAN);
+            Calculator.expr();
+            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
             JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
-            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
+            if (isNot)
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ge_s, ValueType.i32, 0));
+            else
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.lt_s, ValueType.i32, 0));
+        } else if (Scanner.la == Token.GREATERTHAN) {
+            Scanner.check(Token.GREATERTHAN);
+            Calculator.expr();
+            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
+            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
+            if (isNot)
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.le_s, ValueType.i32, 0));
+            else
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.gt, ValueType.i32, 0));
+        } else if (Scanner.la == Token.EQUAL) {
+            Scanner.check(Token.EQUAL);
+            Scanner.check(Token.EQUAL);
+            Calculator.expr();
+            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
+            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
+            if (isNot)
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
+            else
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eq, ValueType.i32, 0));
+        } else if (Scanner.la == Token.NOT) {
+            Scanner.check(Token.NOT);
+            Scanner.check(Token.EQUAL);
+            Calculator.expr();
+            JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.nearest, ValueType.f64, 0));
+            JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
+            if (isNot)
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eq, ValueType.i32, 0));
+            else
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
+        } else {
+            if (isNot) {
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.eqz, ValueType.i32, 0));
+            } else {
+                JWebAssembly.il.add(new WasmConstInstruction(0.0, 0));
+                JWebAssembly.il.add(new WasmConvertInstruction(ValueTypeConvertion.d2i, 0));
+                JWebAssembly.il.add(new WasmNumericInstruction(NumericOperator.ne, ValueType.i32, 0));
+            }
         }
 
         Scanner.check(Token.RBRACK);
@@ -110,48 +150,62 @@ public class Program implements Emitter {
     }
 
     public static void main(String[] args) throws Exception {
-        String bspCode = "x = $arg0;" +
-                "a = 1;" +
-                "b = 2 + a;" +
-                "c = 3 + b;" +
-                "if (x) {c = 3;}" +
-                "value = a*x*x + b*x + c;" +
+        String bspCode = "x = $arg0; a = 1; b = 2 + a; c = 3 + b;" +
+                "if (x) {c = 3;} value = a*x*x + b*x + c;" +
                 "return value;";
         String test1 = "m = $arg0 - 42;" +
-                "if (m) {" +
-                " a = 7.0 ;" +
-                "} else {" +
-                "a = 5 ;" +
-                "}" +
-                "m = m - a;" +
-                "return m;";
+                "if (m) { a = 7.0 ; } else { a = 5 ; }" +
+                "m = m - a; return m;";
         String test2 = "m = $arg0 - 42;" +
-                "if (!m) {" +
-                "return 7;" +
-                "} else {" +
-                "return 666;" +
+                "if (!m) { return 7;" +
+                "} else { return 666;" +
                 "}";
-        String test3 = "m = $arg0;" +
+        String test3 = "m = $arg0; s = 1;" +
+                "while(m){ s = s + 1; m = m-1; }" +
+                "return s;";
+        String test4 = "m = $arg0; s = 1;" +
+                "while(m){ s = s * m; m = m-1; }" +
+                "return s;";
+        String test5 = "m = $arg0; s = 1;" +
+                "while(m>2){ s = s * m; m = m-1; }" +
+                "return s;";
+        String test6 = "m = $arg0;" +
                 "s = 1;" +
-                "while(m){" +
-                "s = s + 1;" +
-                "m = m-1;" +
+                "if(m > 10){" +
+                "s = 24;" +
+                "} else if (m < 4) {" +
+                "s = 23;" +
+                "} else if (m-5) {" +
+                "s = 22;" +
+                "} else { " +
+                "s = 21;" +
                 "}" +
                 "return s;";
-        String test4 = "m = $arg0;" +
+        String test7 = "m = $arg0;" +
                 "s = 1;" +
-                "while(m){" +
-                "s = s * m;" +
-                "m = m-1;" +
+                "if(!m < 10){" +
+                "s = 24;" +
+                "} else if (!m > 4) {" +
+                "s = 23;" +
+                "} else if (!m-5) {" +
+                "s = 22;" +
+                "} else { " +
+                "s = 21;" +
                 "}" +
                 "return s;";
-        /*String bspCode = "m = $arg0 - 42;\n" +
-                "if (!m) {\n" +
-                "return 7;\n" +
-                "} else {\n" +
-                "return 666;\n" +
-                "}";*/
-        Scanner.init(test3);
+        String test8 = "m = $arg0;" +
+                "if(m == 6){" +
+                "return 123;" +
+                "} else { " +
+                "return m;" +
+                "}";
+        String test9 = "m = $arg0;" +
+                "if(m != 6){" +
+                "return m;" +
+                "} else { " +
+                "return 321;" +
+                "}";
+        Scanner.init(test9);
         Scanner.scan();
         JWebAssembly.emitCode(IProgram.class, new Program());
     }
