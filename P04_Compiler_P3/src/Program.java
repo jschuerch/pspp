@@ -32,8 +32,6 @@ public class Program implements Emitter {
             case Token.LCBRACK:
                 block();
                 break;
-            default:
-                System.out.println("bla");
         }
     }
 
