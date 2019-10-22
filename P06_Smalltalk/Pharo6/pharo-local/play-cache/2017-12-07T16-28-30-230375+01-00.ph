@@ -1,0 +1,1 @@
+|c|c := CanvasMorph new openInWorl CanvasMorph allInstances last delete

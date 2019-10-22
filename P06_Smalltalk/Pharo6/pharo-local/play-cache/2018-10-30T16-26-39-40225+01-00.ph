@@ -1,0 +1,1 @@
+|m|m := CanvasMorph new.m openInWindowLabeled: 'Hallo'.m drawBlock: [:c|c frameRectangle: (60@60 extent: 30@30) color:  (Color r:0.8 g:0 b:0).CanvasMorph n: 42.	].Transcript show: CanvasMorph n; cr.

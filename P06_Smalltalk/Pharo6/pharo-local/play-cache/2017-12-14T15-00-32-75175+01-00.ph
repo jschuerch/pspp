@@ -1,0 +1,1 @@
+CanvasMorph new openInWindowLabeled: 'Hallo'

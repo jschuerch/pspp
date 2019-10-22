@@ -1,0 +1,1 @@
+EllipseMorph new openInWorld

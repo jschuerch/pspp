@@ -1,0 +1,1 @@
+HelloClass new doSth

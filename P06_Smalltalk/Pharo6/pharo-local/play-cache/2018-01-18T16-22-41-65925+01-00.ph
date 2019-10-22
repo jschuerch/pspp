@@ -1,0 +1,1 @@
+3 + 2 raisedTo: 5 + 1(#hello,#world) asString == 'helloworld'

@@ -1,0 +1,1 @@
+Transcript open.Transcript show: 'hello World'.

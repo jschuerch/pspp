@@ -1,0 +1,1 @@
+| c |c := CanvasMorph new.c openInWorld.CanvasMorph allInstances last delete

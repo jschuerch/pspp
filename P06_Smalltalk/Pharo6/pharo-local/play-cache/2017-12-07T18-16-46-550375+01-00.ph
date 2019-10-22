@@ -1,0 +1,1 @@
+|p|p := Random new.1 to: 100 do: [ :x | Transcript show: x asString,' '; show: p next; cr ]

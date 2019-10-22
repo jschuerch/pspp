@@ -1,0 +1,1 @@
+HelloClass new SayHello 'cal','vin' == 'calvin'#calvin == #calvinSimpleButtonMorph new	label: 'Open Transcript';	target: [Transcript open.];	actionSelector: #value;	openCenteredInWorld.SimpleButtonMorph allInstances last delete.HelloWorld new doMyTask

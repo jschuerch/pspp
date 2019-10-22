@@ -1,0 +1,1 @@
+Transcript clear.Transcript show: 'Hellow World'.Transcript cr.'Hello' printOn: Transcript.y := 5 squared.x := y - 5.z := y + x.Transcript 	show: x;	cr;	show: y;	cr;	show: z;	cr.S

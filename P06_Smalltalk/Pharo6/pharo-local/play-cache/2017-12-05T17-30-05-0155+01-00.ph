@@ -1,0 +1,1 @@
+[:x|Transcript show: x] value:6|b|b := [:x | x+2].b value: 5actualProcesses showMyGlobal := 7.MyGlobal.Smalltalk SimpleButtonMorph definition.SimpleButtonMorph comment.

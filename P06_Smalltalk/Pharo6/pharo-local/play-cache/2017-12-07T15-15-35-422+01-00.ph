@@ -1,0 +1,1 @@
+SimpleButtonMorph new openCenteredInWorld.
