@@ -1,0 +1,1 @@
+| redPoints iter rand x y pi |"Aufgabe 2 - playground - schuejen"redPoints := 0.iter := 1000000.rand := Random new.Transcript open; clear.1 to: iter do: 	[ :i |		x := (rand next).		y := (rand next).		(x squared + y squared) < 1			ifTrue: [ redPoints := redPoints + 1 ] ].pi := (redPoints / iter) asFloat * 4.Transcript show: pi; cr.

@@ -12,3 +12,33 @@ Transcript
 	cr;
 	show: z;
 	cr.
+x := Random new next; yourself. x next.
+Transcript show: x;
+	cr.
+x := 100 atRandom.
+Transcript show: x;
+	cr.
+
+
+
+Transcript open.
+Transcript clear.
+1000 factorial.
+#(1 2 3) at: 2 put: 'Pharo'; yourself.
+x := Array with: 5 with: 4 with: 3 with: 2 with: 1.
+p1 := 3@4.
+3 max: 4.
+2 class maxVal.
+
+[Transcript show: 'Hello'] value.
+
+[:x | x+2] value: 4.
+
+[:x :y | x + y ] value: 3 value: 4.
+
+b := [:x | x + 4 ].
+Transcript show: (b value: 5); cr.
+
+
+1 to: 100 do: 
+	[ :i | Transcript show: i asString; cr ] 

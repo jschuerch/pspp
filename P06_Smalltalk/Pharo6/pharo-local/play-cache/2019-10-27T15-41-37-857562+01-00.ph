@@ -1,0 +1,1 @@
+m := CanvasMorph new.m openInWindowLabeled: 'Hallo'.m drawBlock: [ :c |	rand := Random new.	1 to: 100 do: [: i |		x := (rand next * 100).		y := (rand next * 100).		c line: (x-1)@y to: (x+1)@y color: Color red.		c line: x@(y-1) to: x@(y+1) color: Color red.	]].m delete.

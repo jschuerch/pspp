@@ -1,0 +1,1 @@
+"Usage - Aufgabe 3 & 4 - schuejen"montecarlo := Montecarlo new.montecarlo count: 1000000.pi := montecarlo pi. Transcript show: pi; cr.montecarlo drawSquare.

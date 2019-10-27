@@ -1,1 +1,1 @@
-Transcript clear.Transcript show: 'Hellow World'.Transcript cr.'Hello' printOn: Transcript.y := 5 squared.x := y - 5.z := y + x.Transcript 	show: x;	cr;	show: y;	cr;	show: z;	cr.S
+Transcript clear.Transcript show: 'Hellow World'.Transcript cr.'Hello' printOn: Transcript.y := 5 squared.x := y - 5.z := y + x.Transcript 	show: x;	cr;	show: y;	cr;	show: z;	cr.x := Random new next; yourself. x next.Transcript show: x;	cr.x := 100 atRandom.Transcript show: x;	cr.
