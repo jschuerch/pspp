@@ -9,10 +9,10 @@
 (pr (faku 20))
 
 ;; c. get y
-(cdadar '((w (x y))))
+(print (car (cdadar '((w (x y))))))
 
-(cadr '((w u) y z))
+(print (cadr '((w u) y z)))
 
-(caddar '((w (x) y) u))
+(print (caddar '((w (x) y) u)))
 
-(caaaar '((((y))) w))
+(print (caaaar '((((y))) w)))

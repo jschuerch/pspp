@@ -1,0 +1,15 @@
+sbcl
+Importiere Datei
+(load "a2.lisp")
+
+Führe datei aus
+sbcl --script a2.lisp
+
+
+/* funktion vom Dozent
+(defun list-double (lst)
+  (if (null lst)
+    nil
+    (cons (* 2 (car lst))
+      (list-double (cdr lst)))))
+*/
