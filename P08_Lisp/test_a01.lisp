@@ -16,3 +16,9 @@
 (print (caddar '((w (x) y) u)))
 
 (print (caaaar '((((y))) w)))
+
+
+(defun sqr (n)
+  (* n n))
+  
+(prRes (mapcar #'sqr '(81 4 9 1 16)))

@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>/Disk/dokumente/ZHAW/zhawdocs/pspp/lisp/weiteres_material/lisp_teil1_demos.lisp.html</title>
+<meta name="Generator" content="Vim/8.1">
+<meta name="plugin-version" content="vim8.1_v1">
+<meta name="syntax" content="lisp">
+<meta name="settings" content="use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="macvim">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.String { color: #4a708b; }
+.Type { color: #008b00; font-weight: bold; }
+.Comment { color: #0000ee; font-style: italic; }
+.Constant { color: #ff8c00; }
+.Special { color: #8a2be2; }
+.Identifier { color: #458b74; }
+.Statement { color: #b03060; font-weight: bold; }
+-->
+</style>
+</head>
+<body cz-shortcut-listen="true">
+<pre id="vimCodeElement"><span class="Comment">;; </span>
+<span class="Comment">;; ERSTE SCHRITTE</span>
+<span class="Comment">;; (PSPP HS19)</span>
+<span class="Comment">;;</span>
+
+<span class="Comment">;; Versuche im Listener</span>
+<span class="Comment">;; ====================</span>
+
+<span class="Comment">;; das ist eine Liste</span>
+<span class="Comment">;; - genau genommen schon zwei Listen</span>
+<span class="Comment">;; - ziemlich wenig Syntax nötig...</span>
+<span class="Comment">;; - eine Liste von Symbolen</span>
+<span class="Comment">;; - das erste (quote) hat eine spezielle Bedeutung</span>
+<span class="Special">(</span><span class="Statement">quote</span> <span class="Special">(</span>was ist denn hier los ?<span class="Special">))</span>
+
+
+<span class="Comment">;; das ' ist eine Abkürzung für quote</span>
+<span class="Special">'</span><span class="Special">(</span>was ist denn hier los ?<span class="Special">)</span>
+
+
+<span class="Comment">;; Listen kann man auch verschachteln</span>
+<span class="Comment">;; - beliebig tief</span>
+<span class="Special">'</span><span class="Special">(</span>was ist <span class="Special">(</span>denn hier<span class="Special">)</span> los ?<span class="Special">)</span>
+
+
+<span class="Comment">;; viele vordefinierte Funktionen manipulieren Listen</span>
+<span class="Comment">;; - listp ist selber eine Funktion, genauer: ein Prädikat</span>
+<span class="Comment">;; - Übergabe von Funktionen als Parameter</span>
+<span class="Comment">;; - steuert hier, was remove-if machen soll</span>
+<span class="Special">(</span><span class="Statement">remove-if</span> <span class="Type">#'listp</span> <span class="Special">'</span><span class="Special">(</span>was ist <span class="Special">(</span>denn hier<span class="Special">)</span> los ?<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; eine Liste muss kann verschiedene Datentypen enthalten</span>
+<span class="Comment">;; - zum Beispiel auch: Strings, Zahlen</span>
+<span class="Special">'</span><span class="Special">(</span>die <span class="String">"Antwort"</span> ist 42<span class="Special">)</span>
+
+
+<span class="Comment">;; noch eine Liste</span>
+<span class="Special">'</span><span class="Special">(</span><span class="Statement">+</span> 1 2 3 4 5<span class="Special">)</span>
+
+<span class="Comment">;; und wenn wir das Quote weglassen...</span>
+<span class="Special">(</span><span class="Statement">+</span> <span class="Constant">1</span> <span class="Constant">2</span> <span class="Constant">3</span> <span class="Constant">4</span> <span class="Constant">5</span><span class="Special">)</span>
+
+<span class="Comment">;; Präfix-Notation</span>
+<span class="Special">(</span><span class="Statement">sqrt</span> <span class="Constant">2</span><span class="Special">)</span>
+
+<span class="Comment">;; Bruchzahlen</span>
+<span class="Comment">;; - an die Präfix-Notation muss man sich erst gewöhnen</span>
+<span class="Special">(</span><span class="Statement">+</span> <span class="Constant">1/4</span> <span class="Constant">1/4</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Übung</span>
+<span class="Comment">;; =====</span>
+<span class="Comment">;; was wird das Ergebnis sein?</span>
+
+<span class="Special">(</span><span class="Statement">*</span> <span class="Constant">3</span> <span class="Special">(</span><span class="Statement">+</span> <span class="Constant">4</span> <span class="Constant">5</span><span class="Special">))</span>
+
+<span class="Special">(</span><span class="Statement">string-upcase</span> <span class="String">"hi fans"</span><span class="Special">)</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> was? <span class="Special">(</span>n<span class="Special">)</span> n<span class="Special">)</span>
+
+<span class="Special">(</span>was? <span class="Constant">17</span><span class="Special">)</span>
+
+<span class="Special">(</span><span class="Statement">identity</span> <span class="Constant">17</span><span class="Special">)</span>
+
+<span class="Special">(</span><span class="Statement">third</span> <span class="Special">'</span><span class="Special">(</span><span class="Statement">defun</span> was? <span class="Special">(</span>n<span class="Special">)</span> n<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Einfache Funktionen</span>
+<span class="Comment">;; ===================</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> flaeche <span class="Special">(</span>laenge breite<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">list</span> <span class="Special">'</span><span class="Identifier">rechteck</span>
+        <span class="Special">'</span><span class="Identifier">mit</span> <span class="Special">'</span><span class="Identifier">flaeche</span>
+        <span class="Special">(</span><span class="Statement">*</span> laenge breite<span class="Special">)))</span>
+
+
+<span class="Comment">;; Aufgabe: breite &amp;OPTIONAL</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> flaeche2 <span class="Special">(</span>laenge <span class="Type">&amp;optional</span> breite<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">list</span> <span class="Special">(</span><span class="Statement">if</span> breite <span class="Special">'</span><span class="Identifier">rechteck</span> <span class="Special">'</span><span class="Identifier">quadrat</span><span class="Special">)</span>
+        <span class="Special">'</span><span class="Identifier">mit</span> <span class="Special">'</span><span class="Identifier">flaeche</span>
+        <span class="Special">(</span><span class="Statement">*</span> laenge <span class="Special">(</span><span class="Statement">or</span> breite laenge<span class="Special">))))</span>
+
+
+<span class="Comment">;; Fakultätsfunktion</span>
+<span class="Comment">;; =================</span>
+<span class="Comment">;; das "Hello World" der funktionalen Programmierung</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> faku <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">&lt;</span> n <span class="Constant">2</span><span class="Special">)</span> <span class="Constant">1</span>
+      <span class="Comment">;; else</span>
+      <span class="Special">(</span><span class="Statement">*</span> n <span class="Special">(</span>faku <span class="Special">(</span><span class="Statement">-</span> n <span class="Constant">1</span><span class="Special">)))))</span>
+
+
+
+<span class="Comment">;; REPL - Read Eval Print Loop</span>
+<span class="Comment">;; ===========================</span>
+<span class="Comment">;; und ihre Umsetzung in Common Lisp :)</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> repl<span class="Special">()</span>
+  <span class="Special">(</span><span class="Statement">loop</span> <span class="Special">(</span><span class="Statement">print</span> <span class="Special">(</span><span class="Statement">eval</span> <span class="Special">(</span><span class="Statement">read</span><span class="Special">)))))</span>
+
+
+
+
+
+
+</pre>
+
+
+
+</body></html>
+<!-- vim: set foldmethod=manual : -->
