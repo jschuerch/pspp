@@ -14,26 +14,21 @@
 ;; This is not a working range function
 ;;
 (defun range-rek (a b c)
-  (cond ((or (= c 0) (or (and (> c 0) (>= a b)) (and (< c 0) (<= a b)))) nil)
-    (t (cons a (range-rek (+ a c) b c)))))
+  (cond ((>= a b) nil)
+    (t (cons a (range-rek (+ a c) b)))))
 
 (defun range (&rest args)
-  (cond ((< (list-length args) 1) nil)
-    (t
-      (range-rek
-        (if (= (list-length args) 1) 0 (car args))
-        (or (cadr args) (car args))
-        (or (caddr args) 1)))))
-
-;      (set 'a (if (= (list-length args) 1) 0 (car args)))
-;      (set 'b (or (cadr args) (car args)))
-;      (set 'c (or (caddr args) 1))
-;      (cond ((or (= c 0) (or (and (> c 0) (>= a b)) (and (< c 0) (<= a b)))) nil)
-;        (t (cons a (range (+ a c) b c)))))))
+  (if (< (list-length args) 1) nil
+    ((set 'a (if (= (list-length args) 1) 0 (car args)))
+    (set 'b (or (cadr args) (car args)))
+    (set 'c (or (caddr args) 1))
+    (range-rek a b c))))
 
 (defun range-simple (a b)
   (cond ((>= a b) nil)
-    (t (cons a (range-simple (+ a 1) b)))))
+    (t
+      (cons a (range-simple (+ a 1) b))
+      )))
 
 (pr '("range-simple 0 5"))
 (prRes (range-simple 0 5))
@@ -54,8 +49,6 @@
 (prRes (range -5 2))
 (pr '("range -5"))
 (prRes (range -5))
-(pr '("range"))
-(prRes (range))
 
 
 
