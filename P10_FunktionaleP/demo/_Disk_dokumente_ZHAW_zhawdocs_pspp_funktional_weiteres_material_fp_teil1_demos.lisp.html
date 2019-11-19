@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>/Disk/dokumente/ZHAW/zhawdocs/pspp/funktional/weiteres_material/fp_teil1_demos.lisp.html</title>
+<meta name="Generator" content="Vim/8.1">
+<meta name="plugin-version" content="vim8.1_v1">
+<meta name="syntax" content="lisp">
+<meta name="settings" content="use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="macvim">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.String { color: #4a708b; }
+.Type { color: #008b00; font-weight: bold; }
+.Comment { color: #0000ee; font-style: italic; }
+.Constant { color: #ff8c00; }
+.Special { color: #8a2be2; }
+.Statement { color: #b03060; font-weight: bold; }
+-->
+</style>
+</head>
+<body cz-shortcut-listen="true">
+<pre id="vimCodeElement"><span class="Comment">;; </span>
+<span class="Comment">;; FUNKTIONALE PROGRAMMIERUNG EINFUEHRUNG</span>
+<span class="Comment">;; (PSPP HS19)</span>
+<span class="Comment">;;</span>
+
+<span class="Comment">;; HINWEIS:</span>
+<span class="Comment">;; einige der folgenden Demos setzen voraus, dass die Funktionssammlung</span>
+<span class="Comment">;; pspp_basics.lisp geladen ist</span>
+
+
+<span class="Comment">;; apply vs funcall</span>
+<span class="Comment">;; ================</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span><span class="Statement">first</span> <span class="Special">'</span><span class="Special">(</span><span class="Statement">+</span> <span class="Statement">-</span> <span class="Statement">*</span> <span class="Statement">/</span><span class="Special">)</span><span class="Special">)</span> <span class="Constant">12</span> <span class="Constant">5</span><span class="Special">)</span>
+<span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span><span class="Statement">second</span> <span class="Special">'</span><span class="Special">(</span><span class="Statement">+</span> <span class="Statement">-</span> <span class="Statement">*</span> <span class="Statement">/</span><span class="Special">)</span><span class="Special">)</span> <span class="Special">'</span><span class="Special">(</span>12 5<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Funktionen als Parameter</span>
+<span class="Comment">;; ========================</span>
+
+<span class="Comment">;; Mapping </span>
+<span class="Comment">;; Hier wird die eigene Implementierung map-list verwendet, obwohl in </span>
+<span class="Comment">;; Common Lisp bereits eine Funktion mapcar existiert</span>
+<span class="Special">(</span>map-list <span class="Type">#'1+</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Mapping mit Lambda</span>
+<span class="Special">(</span>map-list <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> n n<span class="Special">))</span>
+          <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; member</span>
+<span class="Comment">;; der vordefinierten Funktion member kann eine Testfunktion übergeben werden</span>
+<span class="Special">(</span><span class="Statement">member</span> <span class="Constant">5</span> <span class="Special">'</span><span class="Special">(</span>16 25 36<span class="Special">)</span> <span class="Type">:test</span> <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>m n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">=</span> <span class="Special">(</span><span class="Statement">*</span> m m<span class="Special">)</span> n<span class="Special">)))</span>
+
+<span class="Comment">;; eine Liste für ein paar Tests</span>
+<span class="Special">(</span><span class="Statement">defvar</span> <span class="Type">*friends*</span> <span class="Special">'</span><span class="Special">(((</span>:name . <span class="String">"Peter"</span><span class="Special">)</span> <span class="Special">(</span>:age . 32<span class="Special">))</span>
+                    <span class="Special">((</span>:name . <span class="String">"Eva"</span><span class="Special">)</span> <span class="Special">(</span>:age . 29<span class="Special">))</span>
+                    <span class="Special">((</span>:name . <span class="String">"Maria"</span><span class="Special">)</span> <span class="Special">(</span>:age . 30<span class="Special">)))</span><span class="Special">)</span>
+
+<span class="Comment">;; sort verändert die Liste destruktiv, daher wird zunächst eine top-level-</span>
+<span class="Comment">;; Kopie der Liste hergestellt</span>
+<span class="Special">(</span><span class="Statement">sort</span> <span class="Special">(</span><span class="Statement">copy-list</span> <span class="Type">*friends*</span><span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a b<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">&lt;=</span> <span class="Special">(</span><span class="Statement">cdr</span> <span class="Special">(</span><span class="Statement">assoc</span> :age a<span class="Special">))</span>
+            <span class="Special">(</span><span class="Statement">cdr</span> <span class="Special">(</span><span class="Statement">assoc</span> :age b<span class="Special">)))))</span>
+
+<span class="Comment">;; alternativer Aufruf</span>
+<span class="Special">(</span><span class="Statement">sort</span> <span class="Special">(</span><span class="Statement">copy-list</span> <span class="Type">*friends*</span><span class="Special">)</span> <span class="Type">#'&lt;=</span>
+      <span class="Type">:key</span> <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>el<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cdr</span> <span class="Special">(</span><span class="Statement">assoc</span> :age el<span class="Special">))))</span>
+
+<span class="Comment">;; Liste filtern</span>
+<span class="Special">(</span>filter-list #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">&lt;=</span> 10 n<span class="Special">))</span> <span class="Special">'</span><span class="Special">(</span>4 23 1 12 -22 73<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Variante (Vorschau, später mehr in der Art)</span>
+<span class="Special">(</span>filter-list <span class="Special">(</span>partial <span class="Type">#'&lt;=</span> <span class="Constant">10</span><span class="Special">)</span> <span class="Special">'</span><span class="Special">(</span>4 23 1 12 -22 73<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Listen reduzieren</span>
+<span class="Comment">;; =================</span>
+
+<span class="Comment">;; von links oder rechts reduzieren</span>
+<span class="Comment">;; Haskell: foldl, foldr</span>
+<span class="Special">(</span>reduce-list <span class="Type">#'list</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>reduce-list-right <span class="Type">#'list</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; reduce einsetzen: best-Funktion</span>
+<span class="Special">(</span><span class="Statement">defun</span> best <span class="Special">(</span>fun coll<span class="Special">)</span>
+  <span class="Special">(</span>reduce-list <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>x y<span class="Special">)</span> <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">funcall</span> fun x y<span class="Special">)</span> x y<span class="Special">))</span>
+               <span class="Special">(</span><span class="Statement">car</span> coll<span class="Special">)</span>
+               <span class="Special">(</span><span class="Statement">cdr</span> coll<span class="Special">)))</span>
+
+<span class="Comment">;; Beispiele</span>
+<span class="Special">(</span>best <span class="Type">#'&gt;</span> <span class="Special">'</span><span class="Special">(</span>4 8 2 9 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>best <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a b<span class="Special">)</span> <span class="Special">(</span><span class="Statement">&gt;</span> <span class="Special">(</span><span class="Statement">length</span> a<span class="Special">)</span> <span class="Special">(</span><span class="Statement">length</span> b<span class="Special">)))</span> <span class="Special">'</span><span class="Special">(</span><span class="String">"ab"</span> <span class="String">"abcd"</span> <span class="String">"a"</span><span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Liste kopieren</span>
+<span class="Special">(</span>reduce-list-right <span class="Type">#'cons</span>  <span class="Statement">nil</span> <span class="Special">'</span><span class="Special">(</span>5 2 5 7 8 2 4<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Mapping mit reduce</span>
+<span class="Special">(</span>reduce-list-right
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>next res<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">*</span> <span class="Constant">2</span> next<span class="Special">)</span> res<span class="Special">))</span>
+  <span class="Statement">nil</span>
+  <span class="Special">'</span><span class="Special">(</span>5 2 5 7 8 2 4<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Filtern mit reduce</span>
+<span class="Special">(</span>reduce-list-right
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>next res<span class="Special">)</span> <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">evenp</span> next<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> next res<span class="Special">)</span> res<span class="Special">))</span> ^K  <span class="Statement">nil</span>
+  <span class="Special">'</span><span class="Special">(</span>5 2 5 7 8 2 4<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Funktionen als Rückgabewert</span>
+<span class="Comment">;; ===========================</span>
+
+<span class="Special">(</span>setfun <span class="Statement">++</span> <span class="Special">(</span>splat <span class="Type">#'+</span><span class="Special">))</span>
+<span class="Special">(</span><span class="Statement">++</span> <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>setfun add <span class="Special">(</span>unsplat <span class="Special">(</span>splat <span class="Type">#'+</span><span class="Special">)))</span>
+<span class="Special">(</span>add <span class="Constant">1</span> <span class="Constant">2</span> <span class="Constant">3</span><span class="Special">)</span>
+
+<span class="Comment">;; Unterschied defun, setfun</span>
+<span class="Special">(</span><span class="Statement">defun</span> incr <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">+</span> n <span class="Constant">1</span><span class="Special">))</span>
+<span class="Special">(</span>setfun incr <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">+</span> n <span class="Constant">1</span><span class="Special">)))</span>
+
+<span class="Comment">;; Function Wrapper</span>
+<span class="Comment">;; ----------------</span>
+<span class="Special">(</span><span class="Statement">defun</span> wrap-fn <span class="Special">(</span>f pre <span class="Type">&amp;optional</span> <span class="Special">(</span>post <span class="Type">#'identity</span><span class="Special">))</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">equal</span> args <span class="Special">'</span><span class="Special">(</span>:orig<span class="Special">)</span><span class="Special">)</span> f<span class="Special">)</span>
+              <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">funcall</span> post <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">apply</span> pre args<span class="Special">)))))))</span>
+
+<span class="Comment">;; ein paar Hilfsfunktionen (definiert in pspp_basics.lisp)</span>
+<span class="Special">(</span>print-args <span class="Constant">1</span> <span class="Constant">2</span> <span class="Constant">3</span><span class="Special">)</span>
+<span class="Special">(</span>print-res <span class="Constant">42</span><span class="Special">)</span>
+<span class="Special">(</span>defaults <span class="Constant">11</span> <span class="Constant">22</span> <span class="Constant">33</span><span class="Special">)</span>
+<span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span>defaults <span class="Constant">11</span> <span class="Constant">22</span> <span class="Constant">33</span><span class="Special">)</span> <span class="Special">'</span><span class="Special">(</span>1 <span class="Statement">Nil</span> 3<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Funktion dekorieren</span>
+<span class="Special">(</span><span class="Statement">rem</span> <span class="Constant">7</span> <span class="Constant">4</span><span class="Special">)</span> <span class="Comment">; remainder</span>
+<span class="Special">(</span>setfun rem-pr <span class="Special">(</span>wrap-fn <span class="Type">#'rem</span> <span class="Type">#'print-args</span> <span class="Type">#'print-res</span><span class="Special">))</span>
+<span class="Special">(</span>rem-pr <span class="Constant">7</span> <span class="Constant">4</span><span class="Special">)</span>
+<span class="Special">(</span>setfun rem-pr-def <span class="Special">(</span>wrap-fn <span class="Type">#'rem-pr</span> <span class="Special">(</span>defaults <span class="Constant">1</span> <span class="Constant">1</span><span class="Special">)))</span>
+<span class="Special">(</span>rem-pr-def <span class="Constant">7</span> <span class="Constant">4</span><span class="Special">)</span>
+<span class="Special">(</span>rem-pr-def <span class="Constant">3</span><span class="Special">)</span>
+<span class="Special">(</span>rem-pr-def<span class="Special">)</span>
+
+<span class="Comment">;; ursprüngliche Funktion wieder auspacken</span>
+<span class="Special">(</span>setfun rem-pr-nodef <span class="Special">(</span>rem-pr-def :orig<span class="Special">))</span>
+<span class="Special">(</span>rem-pr-nodef <span class="Constant">7</span> <span class="Constant">4</span><span class="Special">)</span>
+<span class="Special">(</span>setfun rem-orig <span class="Special">(</span>rem-pr-nodef :orig<span class="Special">))</span>
+<span class="Special">(</span>rem-orig <span class="Constant">7</span> <span class="Constant">4</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Function Dispatcher</span>
+<span class="Comment">;; -------------------</span>
+<span class="Comment">;; es wird eine neue Funktion erzeugt, die aus einer Liste von Funktionen</span>
+<span class="Comment">;; eine nach der anderen aufruft, bis eine non-Nil zurückgibt </span>
+<span class="Special">(</span><span class="Statement">defun</span> dispatch <span class="Special">(</span><span class="Type">&amp;rest</span> funcs<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">null</span> funcs<span class="Special">)</span> <span class="Statement">nil</span>
+          <span class="Comment">;; else</span>
+          <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>result <span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span><span class="Statement">car</span> funcs<span class="Special">)</span> args<span class="Special">)))</span>
+            <span class="Special">(</span><span class="Statement">if</span> result result
+                <span class="Comment">;; else</span>
+                <span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span><span class="Statement">apply</span> <span class="Type">#'dispatch</span> <span class="Special">(</span><span class="Statement">cdr</span> funcs<span class="Special">))</span> args<span class="Special">))))))</span>
+
+<span class="Comment">;; String ohne das letzte Zeichen</span>
+<span class="Special">(</span><span class="Statement">defun</span> string-butlast <span class="Special">(</span>s<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">stringp</span> s<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">subseq</span> s <span class="Constant">0</span> <span class="Special">(</span><span class="Statement">-</span> <span class="Special">(</span><span class="Statement">length</span> s<span class="Special">)</span> <span class="Constant">1</span><span class="Special">))))</span>
+
+<span class="Comment">;; Liste ohne das letzte Element</span>
+<span class="Special">(</span><span class="Statement">defun</span> list-butlast <span class="Special">(</span>l<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">listp</span> l<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">butlast</span> l<span class="Special">)))</span>
+
+<span class="Special">(</span>setfun gen-butlast <span class="Special">(</span>dispatch <span class="Type">#'list-butlast</span> <span class="Type">#'string-butlast</span><span class="Special">))</span>
+<span class="Special">(</span>gen-butlast <span class="String">"abc"</span><span class="Special">)</span>
+<span class="Special">(</span>gen-butlast <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>gen-butlast :oh<span class="Special">)</span>
+
+<span class="Special">(</span>always <span class="Constant">12</span><span class="Special">)</span>
+<span class="Special">(</span>setfun silly-butlast <span class="Special">(</span>dispatch <span class="Type">#'gen-butlast</span> <span class="Special">(</span>always <span class="Constant">42</span><span class="Special">)))</span>
+<span class="Special">(</span>silly-butlast <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>silly-butlast :oh<span class="Special">)</span>
+
+
+<span class="Comment">;; Partielle Anwendung und Currying</span>
+<span class="Comment">;; ================================</span>
+
+<span class="Comment">;; partial</span>
+<span class="Special">(</span><span class="Statement">member</span> <span class="Constant">0</span> <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>setfun zero-in-list <span class="Special">(</span>partial <span class="Type">#'member</span> <span class="Constant">0</span><span class="Special">))</span>
+
+<span class="Special">(</span>zero-in-list <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>zero-in-list <span class="Special">'</span><span class="Special">(</span>-1 0 1 2<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Currying</span>
+<span class="Special">(</span>setfun gt <span class="Special">(</span>curry2r <span class="Type">#'&gt;</span><span class="Special">))</span>
+<span class="Special">(</span>setfun lt <span class="Special">(</span>curry2r <span class="Type">#'&lt;</span><span class="Special">))</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>gt <span class="Constant">5</span><span class="Special">)</span> <span class="Constant">7</span><span class="Special">)</span>
+
+<span class="Special">(</span>setfun in-range <span class="Special">(</span>checker <span class="Special">(</span>gt <span class="Constant">5</span><span class="Special">)</span> <span class="Special">(</span>lt <span class="Constant">15</span><span class="Special">)))</span>
+<span class="Special">(</span>in-range <span class="Constant">10</span><span class="Special">)</span>
+
+<span class="Special">(</span>setfun in-range-and-even <span class="Special">(</span>checker <span class="Type">#'in-range</span> <span class="Type">#'evenp</span><span class="Special">))</span>
+<span class="Special">(</span>in-range-and-even <span class="Constant">7</span><span class="Special">)</span>
+<span class="Special">(</span>in-range-and-even <span class="Constant">8</span><span class="Special">)</span>
+
+<span class="Comment">;; modifizierte reduce-Funktion</span>
+<span class="Special">(</span>setfun reduce-c <span class="Special">(</span>curry <span class="Type">#'reduce-list-right</span> <span class="Constant">3</span><span class="Special">))</span>
+
+<span class="Special">(</span>reduce-c <span class="Type">#'list</span> <span class="Statement">nil</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; (1 (2 (3 (4 (5 NIL)))))</span>
+<span class="Special">(</span>reduce-c <span class="Type">#'list</span> <span class="Statement">nil</span><span class="Special">)</span>
+<span class="Comment">; #&lt;COMPILED-LEXICAL-CLOSURE (:INTERNAL AUTOCURRY) #x30200111ED2F&gt;</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>reduce-c <span class="Type">#'list</span> <span class="Statement">nil</span><span class="Special">)</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; (1 (2 (3 (4 (5 NIL)))))</span>
+
+<span class="Comment">;; damit elegante neue Funktionsdefinitionen möglich, ohne die Liste als Parameter</span>
+<span class="Comment">;; angeben zu müssen</span>
+<span class="Special">(</span>setfun sum-list <span class="Special">(</span>reduce-c <span class="Type">#'+</span> <span class="Constant">0</span><span class="Special">))</span>
+<span class="Special">(</span>setfun mult-list <span class="Special">(</span>reduce-c <span class="Type">#'*</span> <span class="Constant">1</span><span class="Special">))</span>
+<span class="Special">(</span>setfun all-true <span class="Special">(</span>reduce-c <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a b<span class="Special">)</span> <span class="Special">(</span><span class="Statement">and</span> a b<span class="Special">))</span> <span class="Statement">t</span><span class="Special">))</span>
+<span class="Special">(</span>setfun top-level-copy <span class="Special">(</span>reduce-c <span class="Type">#'cons</span> <span class="Statement">nil</span><span class="Special">))</span>
+
+<span class="Comment">;; Test der Funktionen</span>
+<span class="Special">(</span>sum-list <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>mult-list <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+<span class="Special">(</span>top-level-copy <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Funktion ausführen und vorne in Liste einfügen</span>
+<span class="Special">(</span><span class="Statement">defun</span> f-and-cons <span class="Special">(</span>fn<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>arg1 seq<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">funcall</span> fn arg1<span class="Special">)</span> seq<span class="Special">)))</span>
+
+<span class="Special">(</span>f-and-cons <span class="Type">#'1+</span><span class="Special">)</span>
+<span class="Comment">; --&gt; &lt;function&gt;</span>
+
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>f-and-cons <span class="Type">#'1+</span><span class="Special">)</span> <span class="Constant">1</span> <span class="Special">'</span><span class="Special">(</span>2 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (2 2 3)</span>
+
+<span class="Comment">;; mit f-and-cons und reduce-c kann eine curryfizierte map-Funktion </span>
+<span class="Comment">;; erstellt werden:</span>
+<span class="Special">(</span><span class="Statement">defun</span> map-list-c <span class="Special">(</span>f<span class="Special">)</span> <span class="Special">(</span>reduce-c <span class="Special">(</span>f-and-cons f<span class="Special">)</span> <span class="Statement">nil</span><span class="Special">))</span>
+
+<span class="Special">(</span>map-list-c <span class="Type">#'1+</span><span class="Special">)</span>
+<span class="Comment">; --&gt; #&lt;COMPILED-LEXICAL-CLOSURE (:INTERNAL AUTOCURRY) #x302000F3ED4F&gt;</span>
+
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>map-list-c <span class="Type">#'1+</span><span class="Special">)</span> <span class="Special">'</span><span class="Special">(</span>1 2 3 4 5<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (2 3 4 5 6)</span>
+
+<span class="Comment">; In Miranda kann man map auf ähnliche Weise, aber deutlich einfacher, definieren</span>
+<span class="Comment">; (dabei ist "." die Funktionsverkettung, erst f dann Cons):</span>
+<span class="Comment">; </span>
+<span class="Comment">; map f = foldr (Cons . f) Nil</span>
+
+
+<span class="Comment">;; Komposition und Pipeline</span>
+<span class="Comment">;; ========================</span>
+
+<span class="Comment">;; Funktionen verketten</span>
+<span class="Special">(</span><span class="Statement">defun</span> compose-simple <span class="Special">(</span>f g<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">funcall</span> f <span class="Special">(</span><span class="Statement">apply</span> g args<span class="Special">))))</span>
+
+
+<span class="Comment">;; SCHWIERIGE FRAGE:</span>
+<span class="Comment">;; Kann f-and-cons mit compose-simple ausgedrückt werden?</span>
+<span class="Comment">;; --&gt; Wann ja: wie?</span>
+<span class="Comment">;; --&gt; Wenn nein: warum nicht?</span>
+
+
+<span class="Comment">;; Pipeline: Funktion aus Verkettung von Funktionen bilden </span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> pipeline <span class="Special">(</span><span class="Type">&amp;rest</span> funcs<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">car</span> <span class="Special">(</span><span class="Statement">reduce</span>
+           <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>ar f<span class="Special">)</span> <span class="Special">(</span><span class="Statement">list</span> <span class="Special">(</span><span class="Statement">apply</span> f ar<span class="Special">)))</span>
+           funcs
+           <span class="Type">:initial-value</span> args<span class="Special">))))</span>
+
+<span class="Comment">;; Hilfsfunktion</span>
+<span class="Special">(</span><span class="Statement">defun</span> double <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">*</span> <span class="Constant">2</span> n<span class="Special">))</span>
+
+<span class="Comment">; ??</span>
+<span class="Special">(</span>pipeline <span class="Type">#'double</span> <span class="Type">#'1+</span><span class="Special">)</span>
+
+<span class="Comment">; ??</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>pipeline <span class="Type">#'double</span> <span class="Type">#'1+</span> <span class="Type">#'double</span><span class="Special">)</span> <span class="Constant">10</span><span class="Special">)</span>
+
+
+<span class="Comment">;; map and concatenate</span>
+<span class="Special">(</span>setfun mapcat <span class="Special">(</span>pipeline <span class="Type">#'mapcar</span> <span class="Special">(</span>splat <span class="Type">#'append</span><span class="Special">)))</span>
+<span class="Special">(</span>mapcat <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> n <span class="Special">'</span><span class="Special">(</span><span class="String">","</span><span class="Special">)</span><span class="Special">))</span> <span class="Special">'</span><span class="Special">(</span>1 2 3<span class="Special">)</span><span class="Special">)</span>
+
+<span class="Comment">;; Funktionen aus bestehenden Funktionen zusammensetzen </span>
+<span class="Special">(</span><span class="Statement">defun</span> switch-params <span class="Special">(</span>f<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a b<span class="Special">)</span> <span class="Special">(</span><span class="Statement">funcall</span> f b a<span class="Special">)))</span>
+
+<span class="Special">(</span>setfun what-a <span class="Special">(</span>pipeline <span class="Special">(</span>partial <span class="Type">#'*</span> <span class="Constant">2</span><span class="Special">)</span> <span class="Special">(</span>partial <span class="Type">#'+</span> <span class="Constant">1</span><span class="Special">)))</span>
+<span class="Special">(</span>setfun what-b <span class="Special">(</span>pipeline <span class="Special">(</span>partial <span class="Special">(</span>switch-params <span class="Type">#'mod</span><span class="Special">)</span> <span class="Constant">2</span><span class="Special">)</span> <span class="Type">#'zerop</span><span class="Special">))</span>
+
+<span class="Comment">;; oder ohne switch-params</span>
+<span class="Special">(</span>setfun what-b <span class="Special">(</span>pipeline <span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>curry2r <span class="Type">#'mod</span><span class="Special">)</span> <span class="Constant">2</span><span class="Special">)</span> <span class="Type">#'zerop</span><span class="Special">))</span>
+
+
+<span class="Comment">;; Rekursion und partielle Anwendung</span>
+<span class="Comment">;; =================================</span>
+
+<span class="Comment">;; partial</span>
+<span class="Special">(</span><span class="Statement">sqrt</span> <span class="Constant">2</span><span class="Special">)</span>
+<span class="Special">(</span>partial <span class="Type">#'sqrt</span> <span class="Constant">2</span><span class="Special">)</span>
+
+<span class="Special">(</span>setfun sqrt2 <span class="Special">(</span>partial <span class="Type">#'sqrt</span> <span class="Constant">2</span><span class="Special">))</span>
+<span class="Special">(</span>sqrt2<span class="Special">)</span>
+
+<span class="Comment">;; diese Funktionen rufen sich gegenseitig auf</span>
+<span class="Special">(</span><span class="Statement">defun</span> even-rec <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">zerop</span> n<span class="Special">)</span> <span class="Statement">t</span>
+      <span class="Special">(</span>odd-rec <span class="Special">(</span><span class="Statement">-</span> <span class="Special">(</span><span class="Statement">abs</span> n<span class="Special">)</span> <span class="Constant">1</span><span class="Special">))))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> odd-rec <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">zerop</span> n<span class="Special">)</span> <span class="Statement">nil</span>
+      <span class="Special">(</span>even-rec <span class="Special">(</span><span class="Statement">-</span> <span class="Special">(</span><span class="Statement">abs</span> n<span class="Special">)</span> <span class="Constant">1</span><span class="Special">))))</span>
+
+<span class="Comment">;; in manchen Lisp-Installationen liefert das einen Stack-Überlauf</span>
+<span class="Special">(</span>even-rec <span class="Constant">10000</span><span class="Special">)</span>
+
+<span class="Comment">;; Abhilfe: Aufruf verzögern mit partieller Anwendung</span>
+<span class="Special">(</span><span class="Statement">defun</span> partial <span class="Special">(</span>f <span class="Type">&amp;rest</span> args<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> more-args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">append</span> args more-args<span class="Special">))))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> even-part <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">zerop</span> n<span class="Special">)</span> <span class="Statement">t</span>
+      <span class="Special">(</span>partial <span class="Type">#'odd-part</span> <span class="Special">(</span><span class="Statement">-</span> <span class="Special">(</span><span class="Statement">abs</span> n<span class="Special">)</span> <span class="Constant">1</span><span class="Special">))))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> odd-part <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">zerop</span> n<span class="Special">)</span> <span class="Statement">nil</span>
+      <span class="Special">(</span>partial <span class="Type">#'even-part</span> <span class="Special">(</span><span class="Statement">-</span> <span class="Special">(</span><span class="Statement">abs</span> n<span class="Special">)</span> <span class="Constant">1</span><span class="Special">))))</span>
+
+<span class="Special">(</span>odd-part <span class="Constant">3</span><span class="Special">)</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>odd-part <span class="Constant">3</span><span class="Special">))</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>odd-part <span class="Constant">3</span><span class="Special">)))</span>
+<span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span><span class="Statement">funcall</span> <span class="Special">(</span>odd-part <span class="Constant">3</span><span class="Special">))))</span>
+
+<span class="Comment">;; offene Aufrufe ausführen bis keine neue Funktion mehr resultiert</span>
+<span class="Special">(</span><span class="Statement">defun</span> trampoline <span class="Special">(</span>fun <span class="Type">&amp;rest</span> args<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>result <span class="Special">(</span><span class="Statement">apply</span> fun args<span class="Special">)))</span>
+    <span class="Special">(</span><span class="Statement">loop</span> while <span class="Special">(</span><span class="Statement">functionp</span> result<span class="Special">)</span> <span class="Statement">do</span>
+      <span class="Special">(</span><span class="Statement">setq</span> result <span class="Special">(</span><span class="Statement">funcall</span> result<span class="Special">)))</span>
+    result<span class="Special">))</span>
+
+<span class="Comment">;; Beispiel</span>
+<span class="Special">(</span>trampoline <span class="Type">#'even-part</span> <span class="Constant">10000</span><span class="Special">)</span>
+
+
+</pre>
+
+
+
+</body></html>
+<!-- vim: set foldmethod=manual : -->

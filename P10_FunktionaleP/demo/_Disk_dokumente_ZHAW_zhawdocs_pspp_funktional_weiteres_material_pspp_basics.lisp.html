@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>/Disk/dokumente/ZHAW/zhawdocs/pspp/funktional/weiteres_material/pspp_basics.lisp.html</title>
+<meta name="Generator" content="Vim/8.1">
+<meta name="plugin-version" content="vim8.1_v1">
+<meta name="syntax" content="lisp">
+<meta name="settings" content="use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="macvim">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.PreProc { color: #1874cd; }
+.String { color: #4a708b; }
+.Type { color: #008b00; font-weight: bold; }
+.Comment { color: #0000ee; font-style: italic; }
+.Constant { color: #ff8c00; }
+.Special { color: #8a2be2; }
+.Identifier { color: #458b74; }
+.Statement { color: #b03060; font-weight: bold; }
+-->
+</style>
+</head>
+<body cz-shortcut-listen="true">
+<pre id="vimCodeElement"><span class="Comment">;;</span>
+<span class="Comment">;; Common Lisp Additions, V 1.1.2</span>
+<span class="Comment">;; Basics for PSPP Module </span>
+<span class="Comment">;; ZHAW Winterthur </span>
+<span class="Comment">;; Gerrit Burkert, 2012-2019</span>
+<span class="Comment">;;</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; MACRO SETFUN</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; simplifies binding of a function to </span>
+<span class="Comment">;; a symbol</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Special">(</span><span class="Statement">defmacro</span> setfun <span class="Special">(</span>symb fun<span class="Special">)</span>
+    <span class="PreProc">`(</span><span class="Statement">prog1</span> <span class="Special">'</span><span class="Identifier">,symb</span> <span class="Special">(</span><span class="Statement">setf</span> <span class="Special">(</span><span class="Statement">symbol-function</span> <span class="Special">'</span><span class="Identifier">,symb</span><span class="Special">)</span> ,fun<span class="Special">)</span><span class="PreProc">)</span><span class="Special">)</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; LAMBDA READER</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; functional programming aficionados:</span>
+<span class="Comment">;; here is a lambda reader macro, now</span>
+<span class="Comment">;; you can use youre preferred symbol</span>
+<span class="Comment">;; λ instead of lambda</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">; Source:</span>
+<span class="Comment">; <a href="https://stackoverflow.com/questions/9557469/renaming-lambda-in-common-lisp">https://stackoverflow.com/questions/9557469/renaming-lambda-in-common-lisp</a></span>
+<span class="Special">(</span><span class="Statement">defun</span> λ-reader <span class="Special">(</span><span class="Statement">stream</span> <span class="Statement">char</span><span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">declare</span> <span class="Special">(</span><span class="Statement">ignore</span> <span class="Statement">char</span> <span class="Statement">stream</span><span class="Special">))</span>
+  <span class="Special">'</span><span class="Identifier">LAMBDA</span><span class="Special">)</span>
+
+<span class="Special">(</span><span class="Statement">set-macro-character</span> #\λ <span class="Type">#'λ-reader</span><span class="Special">)</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; MAP, REDUCE, FILTER</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; contrary to the version shown in the</span>
+<span class="Comment">;; lessons or in the exercises, some of</span>
+<span class="Comment">;; these functions use the pre-defined </span>
+<span class="Comment">;; Common Lisp functions</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Mapping over a list (aka mapcar)</span>
+<span class="Comment">;; (recursive version)</span>
+<span class="Comment">;;</span>
+<span class="Comment">;(defun map-list (f lst) </span>
+<span class="Comment">;  (if (null lst) nil</span>
+<span class="Comment">;      ;; else</span>
+<span class="Comment">;      (cons (funcall f (car lst))</span>
+<span class="Comment">;            (map-list f (cdr lst)))))</span>
+
+<span class="Comment">;; Mapping over a list</span>
+<span class="Comment">;; (iterative version)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> map-list <span class="Special">(</span>f seq<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">loop</span> for el in seq collect <span class="Special">(</span><span class="Statement">funcall</span> f el<span class="Special">)))</span>
+
+
+<span class="Comment">;; Reduce list from left</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> reduce-list-left <span class="Special">(</span>fn <span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">eql</span> <span class="Special">(</span><span class="Statement">length</span> args<span class="Special">)</span> <span class="Constant">2</span><span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">reduce</span> fn <span class="Special">(</span><span class="Statement">second</span> args<span class="Special">)</span> <span class="Type">:initial-value</span> <span class="Special">(</span><span class="Statement">first</span> args<span class="Special">))</span>
+        <span class="Special">(</span><span class="Statement">reduce</span> fn <span class="Special">(</span><span class="Statement">first</span> args<span class="Special">))))</span>
+
+
+<span class="Comment">;; Reduce list from right</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> reduce-list-right <span class="Special">(</span>fn <span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">eql</span> <span class="Special">(</span><span class="Statement">length</span> args<span class="Special">)</span> <span class="Constant">2</span><span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">reduce</span> fn <span class="Special">(</span><span class="Statement">second</span> args<span class="Special">)</span> <span class="Type">:initial-value</span> <span class="Special">(</span><span class="Statement">first</span> args<span class="Special">)</span> <span class="Type">:from-end</span> <span class="Statement">t</span><span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">reduce</span> fn <span class="Special">(</span><span class="Statement">first</span> args<span class="Special">)</span> <span class="Type">:from-end</span> <span class="Statement">t</span><span class="Special">)))</span>
+
+
+<span class="Comment">;; Reduce list: aliases</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span>setfun reduce-list <span class="Type">#'reduce-list-left</span><span class="Special">)</span>
+<span class="Special">(</span>setfun foldl <span class="Type">#'reduce-list-left</span><span class="Special">)</span>
+<span class="Special">(</span>setfun foldr <span class="Type">#'reduce-list-right</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Filter list with a predicate (aka remove-if-not)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> filter-list <span class="Special">(</span>f seq<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">null</span> seq<span class="Special">)</span> <span class="Statement">nil</span><span class="Special">)</span>
+        <span class="Special">((</span><span class="Statement">funcall</span> f <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">))</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">)</span> <span class="Special">(</span>filter-list f <span class="Special">(</span><span class="Statement">cdr</span> seq<span class="Special">))))</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span>filter-list f <span class="Special">(</span><span class="Statement">cdr</span> seq<span class="Special">)))))</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; LIST HANDLING</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Make a list with a sequence of numbers</span>
+<span class="Comment">;; This function is not implemented here because it is part</span>
+<span class="Comment">;; of an exercise</span>
+<span class="Comment">;(defun range (start &amp;optional end (step 1)) ...</span>
+
+
+<span class="Comment">;; Merge two lists to an alist</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> zip-to-alist <span class="Special">(</span>lst1 lst2<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">or</span> <span class="Special">(</span><span class="Statement">null</span> lst1<span class="Special">)</span> <span class="Special">(</span><span class="Statement">null</span> lst2<span class="Special">))</span> <span class="Statement">nil</span><span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">car</span> lst1<span class="Special">)</span> <span class="Special">(</span><span class="Statement">car</span> lst2<span class="Special">))</span>
+                 <span class="Special">(</span>zip-to-alist <span class="Special">(</span><span class="Statement">cdr</span> lst1<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cdr</span> lst2<span class="Special">))))))</span>
+
+
+<span class="Comment">;; Flatten list structure</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> flatten <span class="Special">(</span>seq<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">null</span> seq<span class="Special">)</span> <span class="Statement">nil</span><span class="Special">)</span>
+        <span class="Special">((</span><span class="Statement">listp</span> <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">))</span>
+            <span class="Special">(</span><span class="Statement">append</span> <span class="Special">(</span>flatten <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">))</span> <span class="Special">(</span>flatten <span class="Special">(</span><span class="Statement">cdr</span> seq<span class="Special">))))</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">)</span> <span class="Special">(</span>flatten <span class="Special">(</span><span class="Statement">cdr</span> seq<span class="Special">))))))</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; CLOSURE AND MEMOIZATION</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; do something repeatedly</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> repeatedly <span class="Special">(</span>times fun<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">mapcar</span> fun <span class="Special">(</span>range times<span class="Special">)))</span>
+
+
+<span class="Comment">;; return always the same value</span>
+<span class="Comment">;; This function is not implemented here because it is part</span>
+<span class="Comment">;; of an exercise</span>
+<span class="Comment">;(defun always (val) ...</span>
+
+
+<span class="Comment">;; make memoizing version of a function</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> memoize <span class="Special">(</span>fn<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>cache <span class="Special">(</span><span class="Statement">make-hash-table</span> <span class="Type">:test</span> <span class="Type">#'equal</span><span class="Special">)))</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">multiple-value-bind</span> <span class="Special">(</span>val win<span class="Special">)</span> <span class="Special">(</span><span class="Statement">gethash</span> args cache<span class="Special">)</span>
+          <span class="Special">(</span><span class="Statement">if</span> win val
+            <span class="Comment">;; else</span>
+            <span class="Special">(</span><span class="Statement">setf</span> <span class="Special">(</span><span class="Statement">gethash</span> args cache<span class="Special">)</span>
+                  <span class="Special">(</span><span class="Statement">apply</span> fn args<span class="Special">)))))</span><span class="Special">))</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; CURRYING AND PARTIAL APPLICATION</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Partial application of a function: return a </span>
+<span class="Comment">;; function of the remaining arguments</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> partial <span class="Special">(</span>f <span class="Type">&amp;rest</span> args<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> more-args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">append</span> args more-args<span class="Special">))))</span>
+
+
+<span class="Comment">;; Curry a function of two arguments</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> curry2 <span class="Special">(</span>f<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>b<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">funcall</span> f a b<span class="Special">))))</span>
+
+
+<span class="Comment">;; Curry a function of three arguments</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> curry3 <span class="Special">(</span>f<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>b<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>c<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">funcall</span> f a b c<span class="Special">)))))</span>
+
+
+<span class="Comment">;; Curry a function of two arguments (right to left)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> curry2r <span class="Special">(</span>f<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>b<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">funcall</span> f a b<span class="Special">))))</span>
+
+
+<span class="Comment">;; Curry a function of three arguments (right to left)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> curry3r <span class="Special">(</span>f<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>c<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>b<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">funcall</span> f a b c<span class="Special">)))))</span>
+
+
+<span class="Comment">;; Curry a function with numargs parameters: if the resulting </span>
+<span class="Comment">;; function is called with fewer arguments, a curried function of </span>
+<span class="Comment">;; the remaining arguments is returned</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> curry <span class="Special">(</span>f numargs<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">&gt;=</span> <span class="Special">(</span><span class="Statement">length</span> args<span class="Special">)</span> numargs<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">apply</span> f args<span class="Special">)</span>
+        <span class="Special">(</span>curry
+          <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> restargs<span class="Special">)</span> <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">append</span> args restargs<span class="Special">)))</span>
+          <span class="Special">(</span><span class="Statement">-</span> numargs <span class="Special">(</span><span class="Statement">length</span> args<span class="Special">))))))</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; PARAMETER HANDLING</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Change function to accept list with parameters</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> splat <span class="Special">(</span>f<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>arglist<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">apply</span> f arglist<span class="Special">))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Change function to accept individual parameters </span>
+<span class="Comment">;; instead of a list</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> unsplat <span class="Special">(</span>f<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">funcall</span> f args<span class="Special">))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Switch first two parameters of the function </span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> switch-params <span class="Special">(</span>f<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>a b &amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">cons</span> b <span class="Special">(</span><span class="Statement">cons</span> a args<span class="Special">))))</span><span class="Special">)</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; FUNCTION WRAPPER</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Wrap function with pre and (optional) post </span>
+<span class="Comment">;; processing functions; calling a wrapped </span>
+<span class="Comment">;; function with argument :orig returns the</span>
+<span class="Comment">;; original function</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> wrap-fn <span class="Special">(</span>f pre <span class="Type">&amp;optional</span> <span class="Special">(</span>post #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>arg<span class="Special">)</span> arg<span class="Special">)</span><span class="Special">))</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">equal</span> args '<span class="Special">(</span>:orig<span class="Special">))</span> f<span class="Special">)</span>
+              <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">funcall</span> post <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">apply</span> pre args<span class="Special">))))))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Print arguments to console (to be used with wrap-fn)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> print-args <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">format</span> <span class="Statement">t</span> <span class="String">"Called with args ~S~%"</span> args<span class="Special">)</span>
+    args<span class="Special">)</span>
+
+
+<span class="Comment">;; Print result to console (to be used with wrap-fn)</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> print-res <span class="Special">(</span>res<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">format</span> <span class="Statement">t</span> <span class="String">"Result: ~S~%"</span> res<span class="Special">)</span>
+    res<span class="Special">)</span>
+
+
+<span class="Comment">;; Make a function with defaults for its arguments</span>
+<span class="Comment">;; </span>
+<span class="Special">(</span><span class="Statement">defun</span> defaults <span class="Special">(</span><span class="Type">&amp;rest</span> defaults<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span>merge-defaults args defaults<span class="Special">))</span><span class="Special">)</span>
+
+<span class="Comment">;; Helper function </span>
+<span class="Special">(</span><span class="Statement">defun</span> merge-defaults <span class="Special">(</span>seq defaults<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">null</span> defaults<span class="Special">)</span> seq
+        <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">or</span> <span class="Special">(</span><span class="Statement">null</span> seq<span class="Special">)</span> <span class="Special">(</span><span class="Statement">null</span> <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">)))</span> <span class="Special">(</span><span class="Statement">car</span> defaults<span class="Special">)</span> <span class="Special">(</span><span class="Statement">car</span> seq<span class="Special">))</span>
+              <span class="Special">(</span>merge-defaults <span class="Special">(</span><span class="Statement">cdr</span> seq<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cdr</span> defaults<span class="Special">)))))</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; FUNCTION COMBINATION</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Simple composition of two functions</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> compose-simple <span class="Special">(</span>f g<span class="Special">)</span>
+  #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">funcall</span> f <span class="Special">(</span><span class="Statement">apply</span> g args<span class="Special">)))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Compose two functions and optionally specify the number </span>
+<span class="Comment">;; of arguments the function called first should consume</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> compose-funcs <span class="Special">(</span>f g <span class="Type">&amp;optional</span> npar<span class="Special">)</span>
+  #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>nargs <span class="Special">(</span><span class="Statement">if</span> npar npar <span class="Special">(</span><span class="Statement">length</span> args<span class="Special">))))</span>
+        <span class="Special">(</span><span class="Statement">apply</span> f <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">apply</span> g <span class="Special">(</span><span class="Statement">subseq</span> args 0 nargs<span class="Special">))</span>
+                       <span class="Special">(</span><span class="Statement">nthcdr</span> nargs args<span class="Special">)))))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Pipeline: Make a function that composes a </span>
+<span class="Comment">;; sequence of functions </span>
+<span class="Comment">;; </span>
+<span class="Special">(</span><span class="Statement">defun</span> pipeline <span class="Special">(</span><span class="Type">&amp;rest</span> funcs<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">car</span> <span class="Special">(</span><span class="Statement">reduce</span>
+              #'<span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>ar f<span class="Special">)</span> <span class="Special">(</span><span class="Statement">list</span> <span class="Special">(</span><span class="Statement">apply</span> f ar<span class="Special">)))</span>
+              funcs
+              :initial-value args<span class="Special">)))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Checks whether all of a sequence of functions</span>
+<span class="Comment">;; (validators) return true</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> checker <span class="Special">(</span><span class="Type">&amp;rest</span> validators<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>elem<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">every</span> <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>check<span class="Special">)</span> <span class="Special">(</span><span class="Statement">funcall</span> check elem<span class="Special">))</span> validators<span class="Special">))</span><span class="Special">)</span>
+
+
+<span class="Comment">;; Dispatcher: Make a function from a list of functions </span>
+<span class="Comment">;; that returns the result of the first of these that </span>
+<span class="Comment">;; returns a non-nil value</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> dispatch <span class="Special">(</span><span class="Type">&amp;rest</span> funcs<span class="Special">)</span>
+    #<span class="Special">'</span><span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>&amp;rest args<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">null</span> funcs<span class="Special">)</span> <span class="Statement">nil</span>
+            <span class="Comment">;; else</span>
+            <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>result <span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span><span class="Statement">car</span> funcs<span class="Special">)</span> args<span class="Special">)))</span>
+                <span class="Special">(</span><span class="Statement">if</span> result result
+                    <span class="Comment">;; else</span>
+                    <span class="Special">(</span><span class="Statement">apply</span> <span class="Special">(</span><span class="Statement">apply</span> <span class="Type">#'dispatch</span> <span class="Special">(</span><span class="Statement">cdr</span> funcs<span class="Special">))</span> args<span class="Special">)))))</span><span class="Special">)</span>
+
+
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="Comment">;; STRINGS AND I/O</span>
+<span class="Comment">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="Comment">;; Split string at character</span>
+<span class="Comment">;; This function is not implemented here because it is part</span>
+<span class="Comment">;; of an exercise</span>
+<span class="Comment">;(defun string-split (c strg &amp;optional (start 0)) ...</span>
+
+
+<span class="Comment">;; Parse string to float if possible, else return NIL</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> parse-float <span class="Special">(</span>strg<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">stringp</span> strg<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">with-input-from-string</span> <span class="Special">(</span>s strg<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>res <span class="Special">(</span><span class="Statement">read</span> s<span class="Special">)))</span>
+          <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">eq</span> <span class="Special">(</span><span class="Statement">type-of</span> res<span class="Special">)</span> <span class="Special">'</span><span class="Identifier">single-float</span><span class="Special">)</span> res <span class="Statement">nil</span><span class="Special">)))))</span>
+
+
+<span class="Comment">;; Parse string to int if possible, else return NIL</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> parse-int <span class="Special">(</span>strg<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">ignore-errors</span> <span class="Special">(</span><span class="Statement">parse-integer</span> strg<span class="Special">)))</span>
+
+
+<span class="Comment">;; Read text file into string</span>
+<span class="Comment">;;</span>
+<span class="Special">(</span><span class="Statement">defun</span> file-to-string <span class="Special">(</span>path<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">with-open-file</span> <span class="Special">(</span><span class="Statement">stream</span> path<span class="Special">)</span>
+    <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>data <span class="Special">(</span><span class="Statement">make-string</span> <span class="Special">(</span><span class="Statement">file-length</span> <span class="Statement">stream</span><span class="Special">))))</span>
+      <span class="Special">(</span><span class="Statement">read-sequence</span> data <span class="Statement">stream</span><span class="Special">)</span>
+      data<span class="Special">)))</span>
+
+
+</pre>
+
+
+
+</body></html>
+<!-- vim: set foldmethod=manual : -->
