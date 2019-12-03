@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>/Disk/dokumente/ZHAW/zhawdocs/pspp/funktional/weiteres_material/fp_teil2_demos.lisp.html</title>
+<meta name="Generator" content="Vim/8.1">
+<meta name="plugin-version" content="vim8.1_v1">
+<meta name="syntax" content="lisp">
+<meta name="settings" content="use_css,pre_wrap,no_foldcolumn,prevent_copy=">
+<meta name="colorscheme" content="macvim">
+<style type="text/css">
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+* { font-size: 1em; }
+.Type { color: #008b00; font-weight: bold; }
+.Comment { color: #0000ee; font-style: italic; }
+.Constant { color: #ff8c00; }
+.Special { color: #8a2be2; }
+.Statement { color: #b03060; font-weight: bold; }
+-->
+</style>
+</head>
+<body cz-shortcut-listen="true">
+<pre id="vimCodeElement"><span class="Comment">;; </span>
+<span class="Comment">;; FUNKTIONALE PROGRAMMIERUNG VERTIEFUNG</span>
+<span class="Comment">;; (PSPP HS19)</span>
+<span class="Comment">;;</span>
+
+<span class="Comment">;; HINWEIS:</span>
+<span class="Comment">;; einige der folgenden Ausdrücke setzen voraus, dass die Funktionssammlung</span>
+<span class="Comment">;; pspp_basics.lisp geladen ist</span>
+
+
+<span class="Comment">;; Iterate-Abstraktion</span>
+<span class="Comment">;; ===================</span>
+
+<span class="Comment">;; mehrfache Funktionsausführung</span>
+<span class="Special">(</span><span class="Statement">defun</span> iterate <span class="Special">(</span>fn init <span class="Statement">count</span> <span class="Type">&amp;optional</span> res<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>res <span class="Special">(</span><span class="Statement">if</span> <span class="Special">(</span><span class="Statement">null</span> res<span class="Special">)</span> <span class="Special">(</span><span class="Statement">list</span> init<span class="Special">)</span> res<span class="Special">)))</span>
+    <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">&lt;=</span> <span class="Statement">count</span> <span class="Constant">0</span><span class="Special">)</span> <span class="Special">(</span><span class="Statement">reverse</span> res<span class="Special">))</span>
+          <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span>iterate fn init <span class="Special">(</span><span class="Statement">-</span> <span class="Statement">count</span> <span class="Constant">1</span><span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">funcall</span> fn <span class="Special">(</span><span class="Statement">car</span> res<span class="Special">))</span> res<span class="Special">))))))</span>
+
+<span class="Special">(</span>iterate <span class="Type">#'list</span> <span class="Constant">0</span> <span class="Constant">5</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (0 (0) ((0)) (((0))) ((((0)))) (((((0))))))</span>
+
+<span class="Special">(</span>iterate <span class="Type">#'1+</span> <span class="Constant">0</span> <span class="Constant">20</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)</span>
+
+<span class="Special">(</span>iterate <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span><span class="Statement">*</span> <span class="Constant">2</span> n<span class="Special">))</span> <span class="Constant">1</span> <span class="Constant">16</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768 65536)</span>
+
+
+<span class="Comment">;; einfache Variante von range mit iterate</span>
+<span class="Special">(</span><span class="Statement">defun</span> simple-range <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">butlast</span> <span class="Special">(</span>iterate <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>curr<span class="Special">)</span> <span class="Special">(</span><span class="Statement">+</span> curr <span class="Constant">1</span><span class="Special">))</span> <span class="Constant">0</span> n<span class="Special">)))</span>
+
+<span class="Comment">;; range mit iterate</span>
+<span class="Special">(</span><span class="Statement">defun</span> range <span class="Special">(</span>from <span class="Type">&amp;optional</span> to <span class="Special">(</span><span class="Statement">step</span> <span class="Constant">1</span><span class="Special">))</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">null</span> to<span class="Special">)</span> <span class="Special">(</span>range <span class="Constant">0</span> from <span class="Constant">1</span><span class="Special">))</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">butlast</span> <span class="Special">(</span>iterate <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>curr<span class="Special">)</span> <span class="Special">(</span><span class="Statement">+</span> curr <span class="Statement">step</span><span class="Special">))</span> from
+                             <span class="Special">(</span><span class="Statement">ceiling</span> <span class="Special">(</span><span class="Statement">/</span> <span class="Special">(</span><span class="Statement">-</span> to from<span class="Special">)</span> <span class="Statement">step</span><span class="Special">)))))))</span>
+
+<span class="Special">(</span>range <span class="Constant">5</span> <span class="Constant">10</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (5 6 7 8 9)</span>
+<span class="Special">(</span>range <span class="Constant">0</span> <span class="Constant">-10</span> <span class="Constant">-1</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (0 -1 -2 -3 -4 -5 -6 -7 -8 -9)</span>
+
+<span class="Comment">;; Liste der Fibonacci-Zahlen auf verschiedene Weise erstellen</span>
+
+<span class="Comment">;; herkömmliche rekursive Lösung</span>
+<span class="Special">(</span><span class="Statement">defun</span> fibolist <span class="Special">(</span>n <span class="Type">&amp;optional</span> <span class="Special">(</span>seq <span class="Special">'</span><span class="Special">(</span>1 0<span class="Special">)</span><span class="Special">))</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">&lt;=</span> n <span class="Constant">0</span><span class="Special">)</span> <span class="Special">(</span><span class="Statement">list</span> <span class="Constant">0</span><span class="Special">))</span>
+        <span class="Special">((</span><span class="Statement">=</span> n <span class="Constant">1</span><span class="Special">)</span>  <span class="Special">(</span><span class="Statement">reverse</span> seq<span class="Special">))</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span>fibolist <span class="Special">(</span><span class="Statement">-</span> n <span class="Constant">1</span><span class="Special">)</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">+</span> <span class="Special">(</span><span class="Statement">first</span> seq<span class="Special">)</span> <span class="Special">(</span><span class="Statement">second</span> seq<span class="Special">))</span> seq<span class="Special">)))))</span>
+
+<span class="Comment">;; aus einem Tupel zweier aufeinanderfolgender Zahlen das nächste Tupel</span>
+<span class="Comment">;; bestimmen</span>
+<span class="Special">(</span><span class="Statement">defun</span> nextfib <span class="Special">(</span>pair<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">cons</span> <span class="Special">(</span><span class="Statement">cdr</span> pair<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">+</span> <span class="Special">(</span><span class="Statement">car</span> pair<span class="Special">)</span> <span class="Special">(</span><span class="Statement">cdr</span> pair<span class="Special">))))</span>
+
+<span class="Special">(</span>nextfib <span class="Special">'</span><span class="Special">(</span>1 . 1<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (1 . 2)</span>
+<span class="Special">(</span>nextfib <span class="Special">'</span><span class="Special">(</span>1 . 2<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (2 . 3)</span>
+<span class="Special">(</span>nextfib <span class="Special">'</span><span class="Special">(</span>2 . 3<span class="Special">)</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (3 . 5)</span>
+
+<span class="Comment">;; und nun über nextfib iterieren</span>
+<span class="Special">(</span>iterate <span class="Type">#'nextfib</span> <span class="Special">'</span><span class="Special">(</span>0 . 1<span class="Special">)</span> <span class="Constant">5</span><span class="Special">)</span>
+<span class="Comment">; --&gt; ((0 . 1) (1 . 1) (1 . 2) (2 . 3) (3 . 5) (5 . 8))</span>
+
+<span class="Special">(</span><span class="Statement">mapcar</span> <span class="Type">#'car</span> <span class="Special">(</span>iterate <span class="Type">#'nextfib</span> <span class="Special">'</span><span class="Special">(</span>0 . 1<span class="Special">)</span> <span class="Constant">20</span><span class="Special">))</span>
+<span class="Comment">; --&gt; (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)</span>
+
+
+<span class="Comment">;; Die Funktion iterate ist in Clojure bereits definiert, ebenso wie die</span>
+<span class="Comment">;; Funktion range, wobei (range) alle Zahlen beginnend bei 0 liefert</span>
+
+<span class="Comment">; $ clj</span>
+<span class="Comment">; Clojure 1.8.0</span>
+
+<span class="Comment">; user=&gt; (range 5)</span>
+<span class="Comment">; --&gt; (0 1 2 3 4)</span>
+
+<span class="Comment">; user=&gt; (take 10 (range))</span>
+<span class="Comment">; --&gt; (0 1 2 3 4 5 6 7 8 9)</span>
+
+<span class="Comment">; user=&gt; (take 10 (iterate (fn [n] (+ n 1)) 0))</span>
+<span class="Comment">; --&gt; (0 1 2 3 4 5 6 7 8 9)</span>
+
+<span class="Comment">; user=&gt; (defn fib-pair [ [a b] ]  [b (+ a b)])</span>
+<span class="Comment">; --&gt; #'user/fib-pair</span>
+
+<span class="Comment">; user=&gt; (fib-pair [3 5])</span>
+<span class="Comment">; --&gt; [5 8]</span>
+
+<span class="Comment">; user=&gt; (take 20 (map first (iterate fib-pair [0 1])))</span>
+<span class="Comment">; --&gt; (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)</span>
+
+
+<span class="Comment">;; Vollkommene Zahlen</span>
+<span class="Comment">;; ==================</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> is-factor <span class="Special">(</span>factor <span class="Statement">number</span><span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">=</span> <span class="Special">(</span><span class="Statement">rem</span> <span class="Statement">number</span> factor<span class="Special">)</span> <span class="Constant">0</span><span class="Special">))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> get-factors-for <span class="Special">(</span><span class="Statement">number</span><span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">remove-if-not</span> <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span>n<span class="Special">)</span> <span class="Special">(</span>is-factor n <span class="Statement">number</span><span class="Special">))</span>
+                 <span class="Special">(</span>range <span class="Constant">2</span> <span class="Statement">number</span><span class="Special">)))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> is-perfect <span class="Special">(</span><span class="Statement">number</span><span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">=</span> <span class="Special">(</span><span class="Statement">reduce</span> <span class="Type">#'+</span> <span class="Special">(</span><span class="Statement">cons</span> <span class="Constant">1</span> <span class="Special">(</span>get-factors-for <span class="Statement">number</span><span class="Special">)))</span>
+     <span class="Statement">number</span><span class="Special">))</span>
+
+<span class="Special">(</span><span class="Statement">defun</span> generate-perfect-numbers <span class="Special">(</span>from to<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">remove-if-not</span> <span class="Type">#'is-perfect</span> <span class="Special">(</span>range from to<span class="Special">)))</span>
+
+<span class="Special">(</span>generate-perfect-numbers <span class="Constant">0</span> <span class="Constant">1000</span><span class="Special">)</span>
+<span class="Comment">; --&gt; (1 6 28 496)</span>
+
+
+<span class="Comment">;; Memoize</span>
+<span class="Comment">;; =======</span>
+
+<span class="Comment">;; erstellt Version einer Funktion, die bereits berechnete Werte in einer</span>
+<span class="Comment">;; Hashtabelle zwischenspeichert (sehr vereinfacht und nicht in jeder</span>
+<span class="Comment">;; Situation gut geeignet)</span>
+<span class="Special">(</span><span class="Statement">defun</span> memoize <span class="Special">(</span>fn<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">let</span> <span class="Special">((</span>cache <span class="Special">(</span><span class="Statement">make-hash-table</span> <span class="Type">:test</span> <span class="Type">#'equal</span><span class="Special">)))</span>
+    <span class="Special">(</span><span class="Statement">lambda</span> <span class="Special">(</span><span class="Type">&amp;rest</span> args<span class="Special">)</span>
+      <span class="Special">(</span><span class="Statement">multiple-value-bind</span> <span class="Special">(</span>val win<span class="Special">)</span> <span class="Special">(</span><span class="Statement">gethash</span> args cache<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">if</span> win val
+            <span class="Comment">;; else</span>
+            <span class="Special">(</span><span class="Statement">setf</span> <span class="Special">(</span><span class="Statement">gethash</span> args cache<span class="Special">)</span>
+                  <span class="Special">(</span><span class="Statement">apply</span> fn args<span class="Special">)))))))</span>
+
+<span class="Comment">;; Optimierung in CCL ausschalten, damit Effekt sichtbar wird</span>
+<span class="Special">(</span><span class="Statement">declaim</span> <span class="Special">(</span><span class="Statement">optimize</span> <span class="Special">(</span><span class="Statement">debug</span> <span class="Constant">3</span><span class="Special">)))</span>
+
+<span class="Comment">;; zum Test des Memoizers: n-te Fibonacci-Zahl</span>
+<span class="Special">(</span><span class="Statement">defun</span> fibo <span class="Special">(</span>n<span class="Special">)</span>
+  <span class="Special">(</span><span class="Statement">cond</span> <span class="Special">((</span><span class="Statement">&lt;</span> n <span class="Constant">2</span><span class="Special">)</span> n<span class="Special">)</span>
+        <span class="Special">(</span><span class="Statement">t</span> <span class="Special">(</span><span class="Statement">+</span> <span class="Special">(</span>fibo <span class="Special">(</span><span class="Statement">-</span> n <span class="Constant">1</span><span class="Special">))</span> <span class="Special">(</span>fibo <span class="Special">(</span><span class="Statement">-</span> n <span class="Constant">2</span><span class="Special">))))))</span>
+
+
+<span class="Special">(</span><span class="Statement">time</span> <span class="Special">(</span>fibo <span class="Constant">40</span><span class="Special">))</span>
+<span class="Comment">; --&gt; took 767,440 microseconds (0.767440 seconds) to run.</span>
+
+<span class="Special">(</span>setfun fibo <span class="Special">(</span>memoize <span class="Type">#'fibo</span><span class="Special">))</span>
+<span class="Comment">; --&gt; FIBO</span>
+
+<span class="Special">(</span><span class="Statement">time</span> <span class="Special">(</span>fibo <span class="Constant">40</span><span class="Special">))</span>
+<span class="Comment">; --&gt; took 33 microseconds (0.000033 seconds) to run.</span>
+
+
+<span class="Comment">;; Objekte als Werte (JS)</span>
+<span class="Comment">;; ======================</span>
+
+<span class="Comment">; &gt; const incr = (n) =&gt; n+1</span>
+<span class="Comment">; undefined</span>
+<span class="Comment">; </span>
+<span class="Comment">; &gt; incr(33)</span>
+<span class="Comment">; 34</span>
+<span class="Comment">; </span>
+<span class="Comment">; &gt; const incrAge = (p) =&gt; ({ ...p, age: p.age+1 })</span>
+<span class="Comment">; undefined</span>
+<span class="Comment">; </span>
+<span class="Comment">; &gt; incrAge({ name: "Paul", age: 33 })</span>
+<span class="Comment">; { name: 'Paul', age: 34 }</span>
+
+
+</pre>
+
+
+
+</body></html>
+<!-- vim: set foldmethod=manual : -->
