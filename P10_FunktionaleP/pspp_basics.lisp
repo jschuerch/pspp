@@ -330,6 +330,12 @@
 ;; of an exercise
 ;(defun string-split (c strg &optional (start 0)) ...
 
+(defun string-split (c strg &optional (start 0))
+  (let ((end (position c strg :start start)))
+    (cond (end (cons (subseq strg start end)
+                    (string-split c (subseq strg (1+ end)) 0))) ;; MISSING LINE ...
+          (t (list (subseq strg start))))))
+
 
 ;; Parse string to float if possible, else return NIL
 ;;
