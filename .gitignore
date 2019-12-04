@@ -3,3 +3,5 @@ P01_FORTRAN/gfortran-windows-20130301.exe
 *.class
 */__Abgabe
 P09_Lisp2/lisp_praktikum_2/PSPP_p09_lisp_praktikum_2_schuejen.zip
+*/__pycache__
+P12_python_1/PSPP_p12_python_1_schuejen.zip
