@@ -35,6 +35,9 @@
 (pr "num '(12 3)")
 (prRes (num '(12 3)))
 
+
+(prRes (num-args 12 3 "23"))
+
 ; Gibt einen Integer zurück wenn der Parameter eine ganze Zahl enthält,
 ; Gibt einen Float zurück wenn der Parameter eine Fliesskommazahl enthält (als String oder Zahl)
 ; Ansonsten wird der Parameter zurück gegeben (--> Identity, fallback wenn parsen nicht funktioniert hat)
